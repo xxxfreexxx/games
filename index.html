@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猜数游戏</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        input {
+            padding: 10px;
+            margin: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>猜数游戏</h1>
+    <p>我已经想好了一个 1 到 100 之间的数字，你可以开始猜啦！</p>
+    <input type="number" id="guessInput" placeholder="输入你的猜测">
+    <button onclick="checkGuess()">提交猜测</button>
+    <p id="message"></p>
+    <p id="attempts">你已经猜了 0 次。</p>
+
+    <script>
+        const randomNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+
+        function checkGuess() {
+            const guess = parseInt(document.getElementById('guessInput').value);
+            attempts++;
+            const messageElement = document.getElementById('message');
+            const attemptsElement = document.getElementById('attempts');
+
+            if (isNaN(guess)) {
+                messageElement.textContent = '请输入一个有效的数字！';
+            } else if (guess < randomNumber) {
+                messageElement.textContent = '猜的数字太小了，再试试！';
+            } else if (guess > randomNumber) {
+                messageElement.textContent = '猜的数字太大了，再试试！';
+            } else {
+                messageElement.textContent = `恭喜你，猜对了！你一共用了 ${attempts} 次尝试。`;
+                document.getElementById('guessInput').disabled = true;
+                document.querySelector('button').disabled = true;
+            }
+            attemptsElement.textContent = `你已经猜了 ${attempts} 次。`;
+        }
+    </script>
+</body>
+
+</html>
