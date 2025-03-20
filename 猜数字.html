@@ -20,20 +20,68 @@
         button {
             padding: 10px 20px;
         }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 
 <body>
     <h1>猜数游戏</h1>
-    <p>我已经想好了一个 1 到 100 之间的数字，你可以开始猜啦！</p>
-    <input type="number" id="guessInput" placeholder="输入你的猜测">
-    <button onclick="checkGuess()">提交猜测</button>
-    <p id="message"></p>
-    <p id="attempts">你已经猜了 0 次。</p>
+    <p>请输入你的名字开始游戏：</p>
+    <input type="text" id="playerNameInput" placeholder="输入你的名字">
+    <button onclick="startGame()">开始游戏</button>
+    <div id="gameContent" style="display: none;">
+        <p>我已经想好了一个 1 到 100 之间的数字，你可以开始猜啦！</p>
+        <input type="number" id="guessInput" placeholder="输入你的猜测">
+        <button onclick="checkGuess()">提交猜测</button>
+        <p id="message"></p>
+        <p id="attempts">你已经猜了 0 次。</p>
+    </div>
+
+    <h2>游戏排名</h2>
+    <table id="rankTable">
+        <thead>
+            <tr>
+                <th>排名</th>
+                <th>挑战者名字</th>
+                <th>尝试次数</th>
+                <th>时间</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
     <script>
-        const randomNumber = Math.floor(Math.random() * 100) + 1;
+        let randomNumber;
         let attempts = 0;
+        let playerName;
+        let rankings = JSON.parse(localStorage.getItem('rankings')) || [];
+
+        function startGame() {
+            playerName = document.getElementById('playerNameInput').value;
+            if (playerName) {
+                document.getElementById('playerNameInput').disabled = true;
+                document.querySelector('button').disabled = true;
+                document.getElementById('gameContent').style.display = 'block';
+                randomNumber = Math.floor(Math.random() * 100) + 1;
+                attempts = 0;
+            } else {
+                alert('请输入你的名字！');
+            }
+        }
 
         function checkGuess() {
             const guess = parseInt(document.getElementById('guessInput').value);
@@ -50,11 +98,40 @@
             } else {
                 messageElement.textContent = `恭喜你，猜对了！你一共用了 ${attempts} 次尝试。`;
                 document.getElementById('guessInput').disabled = true;
-                document.querySelector('button').disabled = true;
+                document.querySelector('#gameContent button').disabled = true;
+                const now = new Date().toLocaleString();
+                rankings.push({ name: playerName, attempts: attempts, time: now });
+                rankings.sort((a, b) => a.attempts - b.attempts);
+                localStorage.setItem('rankings', JSON.stringify(rankings));
+                updateRankTable();
             }
             attemptsElement.textContent = `你已经猜了 ${attempts} 次。`;
         }
+
+        function updateRankTable() {
+            const tableBody = document.querySelector('#rankTable tbody');
+            tableBody.innerHTML = '';
+            rankings.forEach((result, index) => {
+                const row = document.createElement('tr');
+                const rankCell = document.createElement('td');
+                const nameCell = document.createElement('td');
+                const attemptsCell = document.createElement('td');
+                const timeCell = document.createElement('td');
+                rankCell.textContent = index + 1;
+                nameCell.textContent = result.name;
+                attemptsCell.textContent = result.attempts;
+                timeCell.textContent = result.time;
+                row.appendChild(rankCell);
+                row.appendChild(nameCell);
+                row.appendChild(attemptsCell);
+                row.appendChild(timeCell);
+                tableBody.appendChild(row);
+            });
+        }
+
+        updateRankTable();
     </script>
 </body>
 
 </html>
+    
